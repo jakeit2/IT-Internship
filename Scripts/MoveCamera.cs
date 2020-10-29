@@ -1,0 +1,120 @@
+using UnityEngine;
+using System.Collections;
+
+public class MoveCamera : MonoBehaviour
+{
+	//
+	// VARIABLES
+	//
+
+	public float turnSpeed = 5.0f;		// Speed of camera turning when mouse moves in along an axis
+	public float panSpeed = 5.0f;		// Speed of the camera when being panned
+	public float zoomSpeed = 10.0f;		// Speed of the camera going back and forth
+	public float speed = 70.0f;         // Speed of moving forward
+
+	private Vector3 mouseOrigin;	// Position of cursor when mouse dragging starts
+	private bool isPanning;		// Is the camera being panned?
+	private bool isRotating;	// Is the camera being rotated?
+	private bool isZooming;		// Is the camera zooming?
+
+
+	//
+	// UPDATE
+	//
+
+	void Update ()
+	{
+		// Get the left mouse button
+		if(Input.GetMouseButtonDown(0))
+		{
+			// Get mouse origin
+			mouseOrigin = Input.mousePosition;
+			isRotating = true;
+		}
+
+		// Get the right mouse button
+		if(Input.GetMouseButtonDown(1))
+		{
+			// Get mouse origin
+			mouseOrigin = Input.mousePosition;
+			isPanning = true;
+		}
+
+		// Get the middle mouse button
+		if(Input.GetMouseButtonDown(2))
+		{
+			// Get mouse origin
+			mouseOrigin = Input.mousePosition;
+			isZooming = true;
+		}
+
+		// Disable movements on button release
+		if (!Input.GetMouseButton(0)) isRotating=false;
+		if (!Input.GetMouseButton(1)) isPanning=false;
+		if (!Input.GetMouseButton(2)) isZooming=false;
+
+		// Rotate camera along X and Y axis
+		if (isRotating)
+		{
+			Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
+
+			transform.RotateAround(transform.position, transform.right, -pos.y * turnSpeed);
+			transform.RotateAround(transform.position, Vector3.up, pos.x * turnSpeed);
+		}
+
+		// Move the camera on it's XY plane
+		if (isPanning)
+		{
+			Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
+
+			Vector3 move = new Vector3(pos.x * panSpeed, pos.y * panSpeed, 0);
+			transform.Translate(move, Space.Self);
+		}
+
+		// Move the camera linearly along Z axis
+		if (isZooming)
+		{
+			Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - mouseOrigin);
+
+			Vector3 move = pos.y * zoomSpeed * transform.forward;
+			transform.Translate(move, Space.World);
+
+		}
+
+		//move forward
+		if(Input.GetKey(KeyCode.S))
+		{
+			transform.position += (new Vector3 (speed * Time.deltaTime,0,0));
+		}
+
+		// move backward
+		if(Input.GetKey(KeyCode.W))
+		{
+			transform.position -= (new Vector3 (speed * Time.deltaTime,0,0));
+		}
+
+		// move right
+		if(Input.GetKey(KeyCode.D))
+		{
+			transform.position += (new Vector3 (0,0,speed * Time.deltaTime));
+		}
+
+		// move left
+		if(Input.GetKey(KeyCode.A))
+		{
+			transform.position -= (new Vector3 (0,0,speed * Time.deltaTime));
+		}
+
+
+		// make camera sprint
+		if (Input.GetKey (KeyCode.LeftShift))
+		{
+			speed = 180.0f;
+		}
+		// turn off sprinting
+		if (!Input.GetKey (KeyCode.LeftShift))
+		{
+			speed = 70.0f;
+		}
+	}
+}
